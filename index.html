@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Arimo&family=Luckiest+Guy&family=Oswald:wght@300&display=swap"
+      rel="stylesheet"
+    />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Welcome to object classifier</h1>
+    <div>Teachable Machine Image Model</div>
+    <button type="button" onclick="init()">Start</button>
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+      // More API functions here:
+      // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+      // the link to your model provided by Teachable Machine export panel
+      const URL = "https://teachablemachine.withgoogle.com/models/kRahd5yJq/";
+
+      let model, webcam, labelContainer, maxPredictions;
+
+      // Load the image model and setup the webcam
+      async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(350, 350, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) {
+          // and class labels
+          labelContainer.appendChild(document.createElement("div"));
+        }
+      }
+
+      async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+      }
+
+      // run the webcam image through the image model
+      async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        for (let i = 0; i < maxPredictions; i++) {
+          const classPrediction =
+            prediction[i].className +
+            ": " +
+            prediction[i].probability.toFixed(2);
+          labelContainer.childNodes[i].innerHTML = classPrediction;
+          if (
+            prediction[i].probability.toFixed(2) == 1 &&
+            prediction[i].className == "Tomatoes"
+          ) {
+            document.getElementById(
+              "cont"
+            ).innerText = `Tomatoes are delicious and nutritious fruits that are widely used in cooking and salads. Here is some information about tomatoes:
+
+Benefits of eating tomatoes:
+
+Rich in antioxidants: Tomatoes contain antioxidants like lycopene, which help protect the body against cell damage and may reduce the risk of chronic diseases.
+Good for heart health: The potassium and vitamin C in tomatoes are beneficial for heart health, helping to lower blood pressure and reduce the risk of heart disease.
+Promote skin health: Tomatoes are a good source of vitamins A and C, which contribute to healthy skin, boost collagen production, and protect against sun damage.
+Support digestion: The fiber content in tomatoes aids digestion and helps maintain a healthy digestive system.
+Weight management: Tomatoes are low in calories and high in water content, making them a great choice for weight management.
+Vitamins in tomatoes:
+
+Vitamin C: Tomatoes are an excellent source of vitamin C, which strengthens the immune system, promotes collagen production, and aids in iron absorption.
+Vitamin A: Tomatoes contain vitamin A in the form of beta-carotene, which is essential for good vision, healthy skin, and immune function.
+Vitamin K: Tomatoes provide vitamin K, which is important for blood clotting and bone health.
+B vitamins: Tomatoes contain small amounts of various B vitamins, including thiamine (B1), niacin (B3), and folate (B9), which play vital roles in energy production and cell function.
+Incorporating tomatoes into your diet can contribute to overall health and well-being due to their numerous benefits and nutrient content.`;
+          } else if (
+            prediction[i].probability.toFixed(2) == 1 &&
+            prediction[i].className == "DearStranger"
+          ) {
+            document.getElementById(
+              "cont"
+            ).innerText = `The book "Dear Stranger, You Deserve to Be Loved" is a heartfelt collection of letters written by author and mental health advocate, Hannah Brencher. The book was published in 2015.
+
+In "Dear Stranger, You Deserve to Be Loved," Hannah Brencher shares her personal experiences and struggles with depression, loneliness, and the importance of connection. She writes letters filled with encouragement, love, and hope to strangers who may be going through similar challenges.
+
+Through her compassionate and inspiring words, Brencher emphasizes the significance of reaching out to others, offering support, and reminding individuals that they are not alone in their struggles. The book serves as a reminder of the power of love, kindness, and human connection in a world that can sometimes feel isolating.
+
+"Dear Stranger, You Deserve to Be Loved" has resonated with readers around the world, providing comfort, inspiration, and a reminder that everyone deserves love and understanding.`;
+          } else if (
+            prediction[i].probability.toFixed(2) == 1 &&
+            prediction[i].className == "dsa"
+          ) {
+            document.getElementById(
+              "cont"
+            ).innerText = `The book "Cracking the Coding Interview" is a popular resource for coding interview preparation, written by Gayle Laakmann McDowell. It was first published in 2008 and has since become a go-to guide for aspiring software engineers.
+
+In "Cracking the Coding Interview," Gayle Laakmann McDowell provides valuable insights, tips, and strategies to help job seekers navigate technical interviews in the software engineering industry. The book covers essential computer science concepts, data structures, algorithms, and problem-solving techniques commonly encountered in coding interviews.
+
+With a practical and hands-on approach, McDowell offers detailed explanations, sample interview questions, and solutions to help readers improve their coding skills and perform well in technical interviews. The book is regularly updated to stay relevant with the evolving landscape of software engineering interviews.
+
+"Cracking the Coding Interview" has gained widespread recognition and is highly regarded by both candidates and interviewers in the tech industry. It continues to be an invaluable resource for individuals seeking to land their dream jobs in software engineering through effective interview preparation.`;
+          } else if (
+            prediction[i].probability.toFixed(2) == 1 &&
+            prediction[i].className == "madeEasy"
+          ) {
+            document.getElementById(
+              "cont"
+            ).innerText = `The new edition of GATE 2024 General English incorporates solved papers of the last 14 years. The book is fully revised, updated, and edited. It has been divided into topic-wise sections. The book is divided into three sections i.e. Grammar, Vocabulary and GATE solved questions. All the theory matter is presented in lucid language with examples. At the end of every chapter practice, questions are given with solutions. The book is not only useful for GATE aspirants but also very fruitful for those who are aiming for PSUs & other such competitive examinations in which English questions are being asked.`;
+          } else if (
+            prediction[i].probability.toFixed(2) == 1 &&
+            prediction[i].className == "RYP"
+          ) {
+            document.getElementById(
+              "cont"
+            ).innerText = `Rakesh Yadav Reasoning book for the competitive exam covers all questions with detailed solutions of 7300+ objective questions since 1999 and you get chapter-wise questions so you can easily understand and prepare them. Use this reasoning book for various types of competitive exams like SSC, CPO, SI, CHSL, IBPS PO, IBPS Clerk, or other exams.`;
+          } else if (
+            prediction[i].probability.toFixed(2) == 1 &&
+            prediction[i].className == "Rudra"
+          ) {
+            document.getElementById("cont").innerText = "Hey Rudra......";
+          }
+        }
+      }
+    </script>
+    <p id="cont"></p>
+  </body>
+</html>
+<script src="./index.js"></script>
